@@ -666,6 +666,14 @@ function submitEmail() {
   userEmail = email;
   errorEl.style.display = 'none';
 
+  // Save email to Google Sheet
+  fetch('https://script.google.com/macros/s/AKfycbzMndVGyNzeBaRSIbq23wQ2yGffUguvjICURnuyhH2RjmU33ZDcNCzXxkOWAIwkP1nF/exec', {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: email, source: 'quiz' })
+  }).catch(function() {});
+
   // Open free CLAUDE.md Kit on Gumroad with email pre-filled (captures into audience)
   const gumroadUrl = 'https://getflowmate.gumroad.com/l/claude-md-template?wanted=true&email=' + encodeURIComponent(email);
   window.open(gumroadUrl, '_blank');
