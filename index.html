@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Find Your AI Toolkit — Flowmate</title>
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #141414;
+    --border: #222;
+    --text: #e8e8e8;
+    --muted: #888;
+    --accent: #6c5ce7;
+    --accent-glow: rgba(108, 92, 231, 0.15);
+    --green: #00b894;
+    --yellow: #fdcb6e;
+    --red: #e17055;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem;
+  }
+
+  .logo {
+    width: 140px;
+    margin-bottom: 0.5rem;
+    opacity: 0.9;
+  }
+
+  .logo-fallback {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+    display: none;
+  }
+
+  .tagline {
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-bottom: 2.5rem;
+    letter-spacing: 0.5px;
+  }
+
+  .quiz-container {
+    width: 100%;
+    max-width: 580px;
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 4px;
+    background: var(--border);
+    border-radius: 3px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 3px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  .back-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 0.8rem;
+    cursor: pointer;
+    padding: 0.25rem 0;
+    margin-bottom: 0.5rem;
+    transition: color 0.2s;
+    display: none;
+  }
+
+  .back-btn:hover, .back-btn:focus {
+    color: var(--text);
+    outline: none;
+  }
+
+  .back-btn.visible {
+    display: block;
+  }
+
+  .step-counter {
+    color: var(--muted);
+    font-size: 0.75rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .question {
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.3;
+    margin-bottom: 1.75rem;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .option {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .option:hover, .option:focus {
+    border-color: var(--accent);
+    background: var(--accent-glow);
+    outline: none;
+  }
+
+  .option:focus-visible {
+    box-shadow: 0 0 0 2px var(--accent);
+  }
+
+  .option-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+    width: 2rem;
+    text-align: center;
+  }
+
+  .option-text {
+    flex: 1;
+  }
+
+  .option-label {
+    font-weight: 500;
+    font-size: 0.95rem;
+  }
+
+  .option-desc {
+    color: var(--muted);
+    font-size: 0.8rem;
+    margin-top: 0.2rem;
+  }
+
+  /* Email gate */
+  .email-gate {
+    display: none;
+    text-align: center;
+  }
+
+  .email-gate.active {
+    display: block;
+  }
+
+  .email-gate h2 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .email-gate p {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+  }
+
+  .email-form {
+    display: flex;
+    gap: 0.5rem;
+    max-width: 400px;
+    margin: 0 auto 1rem;
+  }
+
+  .email-input {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    color: var(--text);
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .email-input:focus {
+    border-color: var(--accent);
+  }
+
+  .email-input::placeholder {
+    color: var(--muted);
+  }
+
+  .email-submit {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    white-space: nowrap;
+  }
+
+  .email-submit:hover {
+    opacity: 0.85;
+  }
+
+  .email-note {
+    color: var(--muted);
+    font-size: 0.7rem;
+    opacity: 0.65;
+  }
+
+  .email-error {
+    color: var(--red);
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+    display: none;
+  }
+
+  /* Results */
+  .results {
+    display: none;
+  }
+
+  .results.active {
+    display: block;
+  }
+
+  .results-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .results-badge {
+    display: inline-block;
+    padding: 0.35rem 1rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .badge-green { background: rgba(0,184,148,0.15); color: var(--green); }
+  .badge-yellow { background: rgba(253,203,110,0.15); color: var(--yellow); }
+
+  .results-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .results-subtitle {
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  .product-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    transition: border-color 0.2s;
+  }
+
+  .product-card:hover {
+    border-color: var(--accent);
+  }
+
+  .product-card.featured {
+    border-color: var(--accent);
+    box-shadow: 0 0 20px var(--accent-glow);
+  }
+
+  .product-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.25rem;
+  }
+
+  .product-name {
+    font-weight: 600;
+    font-size: 1.05rem;
+  }
+
+  .product-price {
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 0.95rem;
+    flex-shrink: 0;
+  }
+
+  .product-price.free {
+    color: var(--green);
+  }
+
+  .product-proof {
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .product-desc {
+    color: var(--muted);
+    font-size: 0.85rem;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+  }
+
+  .product-match {
+    font-size: 0.75rem;
+    color: var(--green);
+    margin-bottom: 0.75rem;
+    font-weight: 500;
+  }
+
+  .product-link {
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    text-decoration: none;
+    padding: 0.5rem 1.25rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: opacity 0.2s;
+  }
+
+  .product-link:hover {
+    opacity: 0.85;
+  }
+
+  .product-link.secondary {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  .product-link.secondary:hover {
+    border-color: var(--muted);
+  }
+
+  .restart-btn {
+    display: block;
+    margin: 2rem auto 0;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 0.5rem 1.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+  }
+
+  .restart-btn:hover {
+    border-color: var(--muted);
+    color: var(--text);
+  }
+
+  .footer {
+    margin-top: 3rem;
+    color: var(--muted);
+    font-size: 0.7rem;
+    text-align: center;
+    opacity: 0.65;
+  }
+
+  /* Animations */
+  .fade-in {
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fade-in { animation: none; }
+    .progress-fill { transition: none; }
+  }
+
+  @media (max-width: 480px) {
+    .question { font-size: 1.25rem; }
+    .option { padding: 0.85rem 1rem; }
+    .progress-bar { height: 5px; }
+    .email-form { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<img src="https://getflowmate.com/logo-light.png" alt="Flowmate" class="logo" onerror="this.style.display='none'; document.getElementById('logo-text').style.display='block'">
+<div id="logo-text" class="logo-fallback">Flowmate</div>
+<div class="tagline">Find the right AI toolkit for you</div>
+
+<div class="quiz-container">
+  <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+  <div id="quiz"></div>
+  <div id="email-gate" class="email-gate"></div>
+  <div id="results" class="results"></div>
+</div>
+
+<div class="footer">getflowmate.com</div>
+
+<script>
+const QUESTIONS = [
+  {
+    id: 'role',
+    question: 'What best describes you?',
+    options: [
+      { value: 'freelancer', icon: '&#9998;', label: 'Freelancer or consultant', desc: 'I do client work and want to move faster' },
+      { value: 'founder', icon: '&#128640;', label: 'Founder or solo builder', desc: 'I\'m building or running my own thing' },
+      { value: 'employee', icon: '&#128188;', label: 'Working at a company', desc: 'I want to be more productive at my job' },
+      { value: 'curious', icon: '&#128161;', label: 'Just exploring', desc: 'I keep hearing about AI and want to try it' }
+    ]
+  },
+  {
+    id: 'goal',
+    question: 'What would help you most right now?',
+    options: [
+      { value: 'automate', icon: '&#9881;', label: 'Automate repetitive work', desc: 'Emails, reports, content, data entry' },
+      { value: 'build', icon: '&#9889;', label: 'Build something and sell it', desc: 'A product, a tool, a side project' },
+      { value: 'speed', icon: '&#9201;', label: 'Just get things done faster', desc: 'Better workflows, less manual work' },
+      { value: 'agents', icon: '&#129302;', label: 'Set up AI that works on its own', desc: 'Runs tasks without me babysitting it' }
+    ]
+  },
+  {
+    id: 'technical',
+    question: 'How comfortable are you with technology?',
+    options: [
+      { value: 'none', icon: '&#127793;', label: 'I stick to apps and browsers', desc: 'Never opened a terminal or written code' },
+      { value: 'some', icon: '&#127795;', label: 'I can follow instructions', desc: 'Done some copy-paste setup before' },
+      { value: 'comfortable', icon: '&#127796;', label: 'I\'m hands-on', desc: 'Comfortable with terminal, configs, and setup' },
+      { value: 'dev', icon: '&#127959;', label: 'I write code', desc: 'Software is my day job or main skill' }
+    ]
+  },
+  {
+    id: 'experience',
+    question: 'How much have you used AI so far?',
+    options: [
+      { value: 'new', icon: '&#127381;', label: 'Brand new to it', desc: 'Barely tried anything yet' },
+      { value: 'casual', icon: '&#128172;', label: 'I chat with AI sometimes', desc: 'Use it for questions, writing, brainstorming' },
+      { value: 'regular', icon: '&#128736;', label: 'It\'s part of my workflow', desc: 'I use AI tools daily for real work' },
+      { value: 'power', icon: '&#128421;', label: 'I\'ve built things with it', desc: 'Custom setups, automations, integrations' }
+    ]
+  },
+  {
+    id: 'time',
+    question: 'How much time can you invest in learning?',
+    options: [
+      { value: 'minimal', icon: '&#9889;', label: 'Give me the shortcut', desc: '30 minutes max, just make it work' },
+      { value: 'weekend', icon: '&#128197;', label: 'A weekend project', desc: 'I can dedicate a few hours to set things up' },
+      { value: 'ongoing', icon: '&#128218;', label: 'I\'ll go deep', desc: 'Happy to learn properly over a few weeks' }
+    ]
+  },
+  {
+    id: 'budget',
+    question: 'What are you comfortable spending?',
+    options: [
+      { value: 'free', icon: '&#127381;', label: 'Free only', desc: 'Not ready to spend money yet' },
+      { value: 'low', icon: '&#128176;', label: 'Under $10', desc: 'A coffee\'s worth for something useful' },
+      { value: 'mid', icon: '&#128178;', label: 'Under $30', desc: 'If it saves me time, it\'s worth it' },
+      { value: 'any', icon: '&#128142;', label: 'Whatever gets results', desc: 'I care about ROI, not the price tag' }
+    ]
+  },
+  {
+    id: 'style',
+    question: 'What kind of resource works best for you?',
+    options: [
+      { value: 'guides', icon: '&#128214;', label: 'A guide I can follow', desc: 'Step by step, start to finish' },
+      { value: 'templates', icon: '&#128230;', label: 'Files I can drop in and use', desc: 'Pre-built, ready to customize' },
+      { value: 'depth', icon: '&#128300;', label: 'Something comprehensive', desc: 'I want to really understand this' },
+      { value: 'quick', icon: '&#128640;', label: 'The shortest path to done', desc: 'Minimal reading, maximum output' }
+    ]
+  }
+];
+
+const PRODUCTS = {
+  'claude-md-kit': {
+    name: 'CLAUDE.md Starter Kit',
+    price: 'Free',
+    priceClass: 'free',
+    desc: 'The config layer -- templates and folder structure that teach your AI assistant who you are and how to work with you.',
+    proof: '500+ downloads',
+    url: 'https://getflowmate.gumroad.com/l/claude-md-template',
+    linkText: 'Get it free'
+  },
+  'starter-kit': {
+    name: 'Claude Code Starter Kit',
+    price: '$5',
+    priceClass: '',
+    desc: 'The action layer -- pre-built skills, agents, scripts, and workflow files you can drop in and start using immediately.',
+    proof: '',
+    url: 'https://getflowmate.gumroad.com/l/sbxuc',
+    linkText: 'Get the kit -- $5'
+  },
+  'playbook': {
+    name: 'Claude Code Playbook',
+    price: '$25',
+    priceClass: '',
+    desc: '91 pages, 31 chapters. The complete reference for AI-powered workflows -- automation, agents, skills, and real-world systems. Written from daily use.',
+    proof: '',
+    url: 'https://getflowmate.gumroad.com/l/oeewvw',
+    linkText: 'Get the playbook -- $25'
+  },
+  'bundle': {
+    name: 'Claude Code Bundle',
+    price: '$27',
+    priceClass: '',
+    desc: 'Playbook + Starter Kit together. The full guide plus ready-to-use files in one package. Best value.',
+    proof: 'Best value',
+    url: 'https://getflowmate.gumroad.com/l/dxnjk',
+    linkText: 'Get the bundle -- $27'
+  },
+  'saas-prompts': {
+    name: 'Micro SaaS Prompts',
+    price: '$17',
+    priceClass: '',
+    desc: 'Prompts for building and shipping software products with AI. From idea validation to launch, tested across real projects.',
+    proof: '',
+    url: 'https://getflowmate.gumroad.com/l/micro-saas-prompts',
+    linkText: 'Get the prompts -- $17'
+  },
+  'openclaw': {
+    name: 'The Complete OpenClaw AI Course',
+    price: '$25',
+    priceClass: '',
+    desc: 'Run autonomous AI agents on your own server. PDF guide with screenshots, video walkthroughs, starter configs, and security checklist.',
+    proof: 'New',
+    url: 'https://getflowmate.gumroad.com/l/openclaw',
+    linkText: 'Get the course -- $25'
+  }
+};
+
+let answers = {};
+let currentStep = 0;
+let userEmail = '';
+
+function renderQuestion(idx) {
+  const q = QUESTIONS[idx];
+  const progress = ((idx + 1) / (QUESTIONS.length + 1)) * 100; // +1 for email step
+  document.getElementById('progress').style.width = progress + '%';
+
+  const showBack = idx > 0;
+  const html = `
+    <div class="fade-in">
+      <button class="back-btn ${showBack ? 'visible' : ''}" onclick="goBack()" tabindex="0" aria-label="Go back to previous question">&larr; Back</button>
+      <div class="step-counter">${idx + 1} of ${QUESTIONS.length}</div>
+      <div class="question">${q.question}</div>
+      <div class="options" role="listbox" aria-label="${q.question}">
+        ${q.options.map((o, i) => `
+          <div class="option" role="option" tabindex="0" aria-label="${o.label}: ${o.desc}"
+               onclick="answer('${q.id}', '${o.value}')"
+               onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();answer('${q.id}','${o.value}')}">
+            <div class="option-icon" aria-hidden="true">${o.icon}</div>
+            <div class="option-text">
+              <div class="option-label">${o.label}</div>
+              <div class="option-desc">${o.desc}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+  document.getElementById('quiz').innerHTML = html;
+}
+
+function goBack() {
+  if (currentStep > 0) {
+    currentStep--;
+    const q = QUESTIONS[currentStep];
+    delete answers[q.id];
+    renderQuestion(currentStep);
+  }
+}
+
+function answer(questionId, value) {
+  answers[questionId] = value;
+  currentStep++;
+  if (currentStep < QUESTIONS.length) {
+    renderQuestion(currentStep);
+  } else {
+    showEmailGate();
+  }
+}
+
+function showEmailGate() {
+  document.getElementById('progress').style.width = ((QUESTIONS.length + 0.5) / (QUESTIONS.length + 1) * 100) + '%';
+  document.getElementById('quiz').style.display = 'none';
+
+  const gate = document.getElementById('email-gate');
+  gate.innerHTML = `
+    <div class="fade-in">
+      <h2>Your results are ready</h2>
+      <p>Enter your email to see your personalized recommendations.<br>We'll also send you a free starter template to get going.</p>
+      <div class="email-error" id="email-error">Please enter a valid email address</div>
+      <div class="email-form">
+        <input type="email" class="email-input" id="email-input" placeholder="you@example.com" autocomplete="email" required>
+        <button class="email-submit" onclick="submitEmail()">See my results</button>
+      </div>
+      <div class="email-note">No spam. You'll get the free CLAUDE.md Starter Kit in your inbox.</div>
+      <button class="back-btn visible" onclick="backFromEmail()" style="margin-top: 1rem;">&larr; Back to questions</button>
+    </div>
+  `;
+  gate.classList.add('active');
+
+  const input = document.getElementById('email-input');
+  input.focus();
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') submitEmail();
+  });
+}
+
+function backFromEmail() {
+  document.getElementById('email-gate').classList.remove('active');
+  document.getElementById('email-gate').innerHTML = '';
+  document.getElementById('quiz').style.display = 'block';
+  currentStep = QUESTIONS.length - 1;
+  const lastQ = QUESTIONS[currentStep];
+  delete answers[lastQ.id];
+  renderQuestion(currentStep);
+}
+
+function submitEmail() {
+  const input = document.getElementById('email-input');
+  const email = input.value.trim();
+  const errorEl = document.getElementById('email-error');
+
+  if (!email || !email.includes('@') || !email.includes('.')) {
+    errorEl.style.display = 'block';
+    input.focus();
+    return;
+  }
+
+  userEmail = email;
+  errorEl.style.display = 'none';
+
+  // Open free CLAUDE.md Kit on Gumroad with email pre-filled (captures into audience)
+  const gumroadUrl = 'https://getflowmate.gumroad.com/l/claude-md-template?wanted=true&email=' + encodeURIComponent(email);
+  window.open(gumroadUrl, '_blank');
+
+  // Show results
+  document.getElementById('email-gate').classList.remove('active');
+  document.getElementById('email-gate').innerHTML = '';
+  showResults();
+}
+
+function buildPersonalizedSubtitle() {
+  const { role, goal, technical } = answers;
+
+  const roleLabels = {
+    freelancer: 'a freelancer',
+    founder: 'a founder',
+    employee: 'a professional',
+    curious: 'someone exploring AI'
+  };
+
+  const goalLabels = {
+    automate: 'automate repetitive work',
+    build: 'build and ship a product',
+    speed: 'get things done faster',
+    agents: 'set up autonomous AI'
+  };
+
+  const techLabels = {
+    none: 'new to the technical side',
+    some: 'able to follow along',
+    comfortable: 'hands-on with tech',
+    dev: 'a developer'
+  };
+
+  return `As ${roleLabels[role] || 'someone'} looking to ${goalLabels[goal] || 'use AI'}, and ${techLabels[technical] || 'getting started'} -- here's what fits.`;
+}
+
+function getRecommendations() {
+  const { role, goal, technical, experience, time, budget, style } = answers;
+  let recs = [];
+  let badge = 'green';
+  let title = '';
+
+  const isTechnical = technical === 'comfortable' || technical === 'dev';
+  const isDev = technical === 'dev';
+  const isNew = experience === 'new' || experience === 'casual';
+  const isPower = experience === 'power';
+  const wantsQuick = time === 'minimal';
+  const wantsDepth = time === 'ongoing';
+  const hasBudget = budget === 'mid' || budget === 'any';
+  const wantsTemplates = style === 'templates' || style === 'quick';
+  const wantsGuide = style === 'guides' || style === 'depth';
+  const isFounder = role === 'founder';
+  const isFreelancer = role === 'freelancer';
+  const isCurious = role === 'curious';
+  const isEmployee = role === 'employee';
+
+  // --- AGENTS: autonomous AI on own infra ---
+  if (goal === 'agents') {
+    if (isTechnical && hasBudget) {
+      recs.push({ key: 'openclaw', featured: true, match: 'Built for running autonomous AI agents on your own server' });
+      if (isNew || wantsGuide) {
+        recs.push({ key: 'bundle', featured: false, match: 'Get the fundamentals first -- makes agent setup smoother' });
+      } else if (wantsTemplates) {
+        recs.push({ key: 'starter-kit', featured: false, match: 'Drop-in agent configs and skill files' });
+      }
+      if (isFounder && !isNew) {
+        recs.push({ key: 'saas-prompts', featured: false, match: 'Turn your agents into a product' });
+      }
+      title = 'You\'re ready for autonomous AI';
+    }
+    else if (isTechnical && budget === 'low') {
+      recs.push({ key: 'starter-kit', featured: true, match: 'Start with agent-ready configs and skill files' });
+      recs.push({ key: 'claude-md-kit', featured: false, match: 'Free config layer -- pair this with the kit' });
+      title = 'Build toward agents';
+    }
+    else if (isTechnical && budget === 'free') {
+      recs.push({ key: 'claude-md-kit', featured: true, match: 'Free foundation -- learn the config system agents depend on' });
+      title = 'Start the foundation';
+    }
+    else if (!isTechnical) {
+      badge = 'yellow';
+      recs.push({ key: 'claude-md-kit', featured: true, match: 'Build your AI foundation first -- agents need technical comfort' });
+      if (hasBudget) {
+        if (wantsGuide) {
+          recs.push({ key: 'playbook', featured: false, match: 'Step-by-step guide to build your skills up to agent-level' });
+        } else {
+          recs.push({ key: 'bundle', featured: false, match: 'The full system to level up before going autonomous' });
+        }
+      } else if (budget === 'low') {
+        recs.push({ key: 'starter-kit', featured: false, match: 'Hands-on files to build comfort quickly' });
+      }
+      title = 'Build the foundation first';
+    }
+  }
+
+  // --- BUILD: shipping a product ---
+  else if (goal === 'build') {
+    if (hasBudget) {
+      if (isFounder || isDev) {
+        recs.push({ key: 'saas-prompts', featured: true, match: 'Prompts tested across real product launches -- built for builders' });
+      } else {
+        recs.push({ key: 'saas-prompts', featured: true, match: 'Step-by-step prompts from idea to launch' });
+      }
+      if (wantsGuide || wantsDepth) {
+        recs.push({ key: 'playbook', featured: false, match: 'Deep reference for the full build process' });
+      } else {
+        recs.push({ key: 'bundle', featured: false, match: 'Guide + ready-to-use files in one package' });
+      }
+    } else if (budget === 'low') {
+      recs.push({ key: 'starter-kit', featured: true, match: 'Pre-built files to start building right away' });
+      recs.push({ key: 'claude-md-kit', featured: false, match: 'Free config templates to pair with it' });
+    } else {
+      recs.push({ key: 'claude-md-kit', featured: true, match: 'Free starting point -- begin building today' });
+    }
+    title = isFounder ? 'Ship faster' : 'Start building';
+  }
+
+  // --- AUTOMATE: remove repetitive work ---
+  else if (goal === 'automate') {
+    if (budget === 'free') {
+      recs.push({ key: 'claude-md-kit', featured: true, match: 'Set up AI-powered automation for free' });
+      title = 'Start automating for free';
+    } else if (budget === 'low') {
+      if (wantsTemplates || wantsQuick) {
+        recs.push({ key: 'starter-kit', featured: true, match: 'Drop-in workflows you can start using in minutes' });
+      } else {
+        recs.push({ key: 'starter-kit', featured: true, match: 'Pre-built automation templates' });
+        recs.push({ key: 'claude-md-kit', featured: false, match: 'Free config layer -- grab this too' });
+      }
+      title = isFreelancer ? 'Automate client work' : 'Automation on a budget';
+    } else {
+      // Has budget (mid or any)
+      if (wantsTemplates || wantsQuick) {
+        recs.push({ key: 'bundle', featured: true, match: 'Guide + ready-made templates in one package' });
+      } else if (style === 'depth') {
+        recs.push({ key: 'playbook', featured: true, match: 'Deep guide to building automation systems' });
+        if (!wantsQuick) {
+          recs.push({ key: 'starter-kit', featured: false, match: 'Companion files for hands-on practice' });
+        }
+      } else {
+        // guides
+        recs.push({ key: 'bundle', featured: true, match: 'Step-by-step guide with ready-to-use files' });
+      }
+      // Cross-sell: technical founders/freelancers get SaaS prompts
+      if (isTechnical && (isFounder || isFreelancer)) {
+        recs.push({ key: 'saas-prompts', featured: false, match: 'Bonus: prompts that power automation pipelines' });
+      }
+      // Cross-sell: technical users with budget who want depth get OpenClaw mention
+      if (isDev && budget === 'any' && wantsDepth) {
+        recs.push({ key: 'openclaw', featured: false, match: 'Next level: self-hosted agents that automate autonomously' });
+      }
+      title = isFreelancer ? 'Automate your client workflow' : isEmployee ? 'Automate the busywork' : 'Let AI handle the busywork';
+    }
+  }
+
+  // --- SPEED: just get things done faster ---
+  else if (goal === 'speed') {
+    if (budget === 'free') {
+      recs.push({ key: 'claude-md-kit', featured: true, match: 'The fastest free way to supercharge your workflow' });
+      title = 'Speed boost, no cost';
+    } else if (budget === 'low') {
+      if (wantsQuick || wantsTemplates) {
+        recs.push({ key: 'starter-kit', featured: true, match: 'Ready-to-use files -- fastest path to results' });
+      } else {
+        recs.push({ key: 'starter-kit', featured: true, match: 'Pre-built workflows to drop in' });
+        recs.push({ key: 'claude-md-kit', featured: false, match: 'Free companion templates' });
+      }
+      title = 'Quick wins';
+    } else {
+      // Has budget
+      if (wantsQuick || wantsTemplates) {
+        recs.push({ key: 'bundle', featured: true, match: 'Everything in one package -- no hunting for pieces' });
+        title = 'The whole toolkit, one download';
+      } else if (style === 'depth') {
+        recs.push({ key: 'playbook', featured: true, match: 'Understand the full system, then move fast with confidence' });
+        if (isDev && budget === 'any') {
+          recs.push({ key: 'openclaw', featured: false, match: 'Go further: autonomous agents that work while you sleep' });
+        }
+        title = 'Master the system';
+      } else {
+        // guides
+        recs.push({ key: 'bundle', featured: true, match: 'Step-by-step guide with hands-on files' });
+        title = 'Work smarter, not harder';
+      }
+      // Add cross-sell for new users
+      if (isNew) {
+        recs.push({ key: 'claude-md-kit', featured: false, match: 'Start with the free setup first' });
+      }
+      // Founders wanting speed with budget get SaaS prompts
+      if (isFounder && isTechnical && !isNew) {
+        recs.push({ key: 'saas-prompts', featured: false, match: 'Ship your own product while you\'re at it' });
+      }
+    }
+  }
+
+  // Fallback (should never hit with the agents+free+technical fix above, but just in case)
+  if (recs.length === 0) {
+    recs.push({ key: 'claude-md-kit', featured: true, match: 'The best place to start -- free and sets you up for everything else' });
+    title = 'Start here';
+  }
+
+  // Ensure at least 2 recommendations where possible
+  if (recs.length === 1 && budget !== 'free') {
+    const existingKeys = recs.map(r => r.key);
+    if (!existingKeys.includes('claude-md-kit')) {
+      recs.push({ key: 'claude-md-kit', featured: false, match: 'Grab the free config templates too' });
+    }
+  }
+
+  return { recs, badge, title };
+}
+
+function showResults() {
+  document.getElementById('progress').style.width = '100%';
+  document.getElementById('quiz').style.display = 'none';
+
+  const { recs, badge, title } = getRecommendations();
+  const subtitle = buildPersonalizedSubtitle();
+
+  let html = `<div class="fade-in">
+    <div class="results-header">
+      <div class="results-badge badge-${badge}">${badge === 'green' ? 'Great fit' : 'Start here first'}</div>
+      <div class="results-title">${title}</div>
+      <div class="results-subtitle">${subtitle}</div>
+    </div>`;
+
+  recs.forEach(rec => {
+    const p = PRODUCTS[rec.key];
+    const emailParam = userEmail ? '&email=' + encodeURIComponent(userEmail) : '';
+    const utmParams = '?utm_source=quiz&utm_medium=recommendation&utm_campaign=flowmate-quiz' + emailParam;
+    const url = p.url + utmParams;
+    const proofHtml = p.proof ? `<div class="product-proof">${p.proof}</div>` : '';
+
+    html += `
+      <div class="product-card ${rec.featured ? 'featured' : ''}">
+        <div class="product-match">${rec.match}</div>
+        <div class="product-top">
+          <div class="product-name">${p.name}</div>
+          <div class="product-price ${p.priceClass}">${p.price}</div>
+        </div>
+        ${proofHtml}
+        <div class="product-desc">${p.desc}</div>
+        <a href="${url}" target="_blank" rel="noopener" class="product-link ${rec.featured ? '' : 'secondary'}">${p.linkText}</a>
+      </div>`;
+  });
+
+  html += `<button class="restart-btn" onclick="restart()">Retake quiz</button></div>`;
+
+  const el = document.getElementById('results');
+  el.innerHTML = html;
+  el.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function restart() {
+  answers = {};
+  currentStep = 0;
+  userEmail = '';
+  document.getElementById('results').classList.remove('active');
+  document.getElementById('results').innerHTML = '';
+  document.getElementById('email-gate').classList.remove('active');
+  document.getElementById('email-gate').innerHTML = '';
+  document.getElementById('quiz').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  renderQuestion(0);
+}
+
+// Start
+renderQuestion(0);
+</script>
+</body>
+</html>
